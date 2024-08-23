@@ -446,7 +446,6 @@ function choicegroup_user_submit_response($formanswer, $choicegroup, $userid, $c
         $event->add_record_snapshot('course', $course);
         $event->add_record_snapshot('choicegroup', $choicegroup);
         $event->trigger();
-
     } else {
         if (!$current || !($current->id == $selectedoption->groupid)) { // Check to see if current choicegroup already selected -
             // if not display error.
