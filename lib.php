@@ -81,7 +81,7 @@ function choicegroup_user_outline($course, $user, $mod, $choicegroup) {
 /**
  * Get the response for a user in a choicegroup.
  *
- * @param object $choicegroup
+ * @param object|int $choicegroup
  * @param object $user
  * @param bool $returnarray
  * @param bool $refresh
@@ -100,10 +100,16 @@ function choicegroup_get_user_answer($choicegroup, $user, $returnarray = false, 
         $userid = $user->id;
     }
 
-    if ($refresh || !isset($useranswers[$userid][$choicegroup->id])) {
+    if (is_numeric($choicegroup)) {
+        $choicegroupid = $choicegroup;
+    } else {
+        $choicegroupid = $choicegroup->id;
+    }
+
+    if ($refresh || !isset($useranswers[$userid][$choicegroupid])) {
         $groups = [];
         $groupids = [];
-        $choicegroupgroups = choicegroup_get_groups($choicegroup->id);
+        $choicegroupgroups = choicegroup_get_groups($choicegroupid);
 
         foreach ($choicegroupgroups as $group) {
             if (is_numeric($group->id)) {
@@ -124,17 +130,17 @@ function choicegroup_get_user_answer($choicegroup, $user, $returnarray = false, 
             }
         }
 
-        $useranswers[$userid][$choicegroup->id] = $groups;
+        $useranswers[$userid][$choicegroupid] = $groups;
     }
 
-    if (empty($useranswers[$userid][$choicegroup->id])) {
+    if (empty($useranswers[$userid][$choicegroupid])) {
         return false;
     }
 
     if ($returnarray === true) {
-        return $useranswers[$userid][$choicegroup->id];
+        return $useranswers[$userid][$choicegroupid];
     } else {
-        return $useranswers[$userid][$choicegroup->id][0];
+        return $useranswers[$userid][$choicegroupid][0];
     }
 }
 
@@ -714,6 +720,7 @@ function choicegroup_delete_responses($grpsmemberids, $choicegroup, $cm, $course
         $currentgroup = $DB->get_record('groups', ['id' => $groupid], 'id,name', MUST_EXIST);
         if (groups_is_member($groupid, $userid)) {
             groups_remove_member($groupid, $userid);
+            $eventparams['relateduserid'] = $userid;
             $event = \mod_choicegroup\event\choice_removed::create($eventparams);
             $event->add_record_snapshot('course_modules', $cm);
             $event->add_record_snapshot('course', $course);
@@ -916,7 +923,7 @@ function choicegroup_reset_course_form_defaults($course) {
  * Get all responses for a choicegroup
  *
  * @uses CONTEXT_MODULE
- * @param object $choicegroup
+ * @param object|int $choicegroup
  * @param object $cm
  * @param int $groupmode Group mode
  * @param bool $onlyactive Whether to get response data for active users only
@@ -977,7 +984,7 @@ function choicegroup_get_response_data($choicegroup, $cm, $groupmode, $onlyactiv
 /**
  * Return an array with the options selected of users of the $choicegroup
  *
- * @param object $choicegroup choicegroup record
+ * @param object|int $choicegroup choicegroup record
  * @param context_module $ctx Context instance
  * @param int $currentgroup Current group
  * @param bool $onlyactive Whether to get responses for active users only
