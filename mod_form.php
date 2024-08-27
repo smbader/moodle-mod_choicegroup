@@ -305,7 +305,9 @@ class mod_choicegroup_mod_form extends moodleform_mod {
      */
     public function data_preprocessing(&$defaultvalues) {
         global $DB;
-        $this->js_call();
+        if (!str_ends_with($this->get_form()->getAttribute('action'), '/course/defaultcompletion.php')) {
+            $this->js_call();
+        }
 
         if (empty($defaultvalues['timeopen'])) {
             $defaultvalues['timerestrict'] = 0;
