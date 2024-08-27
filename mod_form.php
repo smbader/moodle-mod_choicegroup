@@ -305,6 +305,8 @@ class mod_choicegroup_mod_form extends moodleform_mod {
      */
     public function data_preprocessing(&$defaultvalues) {
         global $DB;
+        parent::data_preprocessing($defaultvalues);
+
         if (!str_ends_with($this->get_form()->getAttribute('action'), '/course/defaultcompletion.php')) {
             $this->js_call();
         }
